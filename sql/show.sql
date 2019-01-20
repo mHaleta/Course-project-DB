@@ -5,7 +5,8 @@ create or replace package show is
         vendor          Advertisement.user_login % type,
         prod_name       Advertisement.product_name % type,
         prod_price      Advertisement.product_price % type,
-        prod_quantity   Advertisement.product_quantity % type
+        prod_quantity   Advertisement.product_quantity % type,
+        prod_desc       Advertisement.product_description % type
     );
     
     type row_user is record(
@@ -44,6 +45,10 @@ create or replace package show is
         
     function show_advertisements return tbl_advertisement pipelined;
     
+    function show_ads_by_login(
+        login           Advertisement.user_login % type
+    ) return tbl_advertisement pipelined;
+    
     function show_all_users return tbl_user_for_all pipelined;
     
     function show_price_tracking_list(
@@ -72,7 +77,8 @@ create or replace package body show is
                 user_login,
                 product_name,
                 product_price,
-                product_quantity
+                product_quantity,
+                product_description
             from
                 Advertisement;
                 
@@ -82,6 +88,30 @@ create or replace package body show is
         end loop;
         return;
     end show_advertisements;
+    
+    function show_ads_by_login(
+        login           Advertisement.user_login % type
+    ) return tbl_advertisement pipelined is
+        cursor advert_cursor is
+            select 
+                advertisement_id,
+                "date",
+                user_login,
+                product_name,
+                product_price,
+                product_quantity,
+                product_description
+            from
+                Advertisement
+            where
+                user_login = login;
+                
+    begin
+        for cur in advert_cursor loop
+            pipe row(cur);
+        end loop;
+        return;
+    end show_ads_by_login;
     
     function find_adverts_by_product(
         prod           Advertisement.product_name % type
@@ -93,7 +123,8 @@ create or replace package body show is
                 user_login,
                 product_name,
                 product_price,
-                product_quantity
+                product_quantity,
+                product_description
             from
                 Advertisement
             where
@@ -115,7 +146,8 @@ create or replace package body show is
                 user_login,
                 product_name,
                 product_price,
-                product_quantity
+                product_quantity,
+                product_description
             from
                 Advertisement
             where

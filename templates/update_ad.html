@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Додавання продукту</title>
+        <title>Редагування реклами</title>
         <style type="text/css">
             .button {
                 border: 0;
@@ -47,10 +47,10 @@
             <a href="/logout"><button class="button", type="button">Вихід</button></a>
         </div>
         <div style="padding-top: 20px" align="center">
-            <form action="/profile/add_product", method="POST">
+            <form action="/profile/update_ad/id={{ id }}" method="POST">
                 {{ form.hidden_tag() }}
                 <div style="padding-bottom: 10px">
-                        <p style="font-size: 20px; font-family: 'Segoe Print'" align="center">Add Product</p>
+                        <p style="font-size: 20px; font-family: 'Segoe Print'" align="center">Edit Profile</p>
                 </div>
                 <div style="padding-bottom: 20px">
                     {% for message in get_flashed_messages() %}
@@ -60,16 +60,16 @@
                 {% endfor %}
                 </div>
                 <div style="padding-bottom: 20px">
-                    {{ form.name(placeholder="Product name *") }}
+                    {{ form.name(value=row[0][0]) }}
                 </div>
                 <div style="padding-bottom: 20px">
-                    {{ form.price(placeholder="Product price *") }}
+                    {{ form.price(value=row[0][1]) }}
                 </div>
                 <div style="padding-bottom: 20px">
-                    {{ form.quantity(placeholder="Product quantity *") }}
+                    {{ form.quantity(value=row[0][2]) }}
                 </div>
                 <div style="padding-bottom: 20px">
-                    {{ form.description(placeholder="Description") }}
+                    <textarea id="description" name="description" maxlength="2000">{{ row[0][3] }}</textarea>
                 </div>
                 <div style="padding-bottom: 20px">
                     {{ form.submit(class="btnSubmit") }}

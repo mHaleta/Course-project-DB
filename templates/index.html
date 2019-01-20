@@ -36,6 +36,16 @@
                 margin-right: 20px;
             }
 
+            .btnSubmit_disabled {
+                background-color: #009933;
+                opacity: 0.7;
+                font-size: 16px;
+                font-family: "Segoe UI";
+                text-align: center;
+                margin-right: 20px;
+                color: black;
+            }
+
             .btnSubmit:hover {
                 background-color: #00cc66;
             }
@@ -72,7 +82,11 @@
                             <td>{{ col }}</td>
                         {% endfor %}
                         <td align="center">
-                            <input class="btnSubmit" type="submit" value="Add" name="{{ iter }}">
+                            {% if login == row[2] %}
+                                <input class="btnSubmit_disabled" disabled type="submit" value="Add" name="{{ iter }}">
+                            {% else %}
+                                <input class="btnSubmit" type="submit" value="Add" name="{{ iter }}">
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

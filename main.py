@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from wtforms import TextAreaField
 
 from flask import Flask, request, render_template, session, redirect, url_for, make_response, flash
 
@@ -83,6 +84,9 @@ def main():
     login = session['user_name']
 
     rows = show_advertisements()
+    for i in range(len(rows)):
+        rows[i] = list(rows[i])
+        rows[i].pop(-1)
     length = len(rows)
     zipped = zip(rows, range(length))
 
@@ -95,7 +99,7 @@ def main():
         if is_in_price_tracking_list(str(rows[chosen][0]), login) == 'false':
             add_to_price_tracking_list(str(rows[chosen][0]), login)
 
-    return render_template('index.html', zipped=zipped, length=length)
+    return render_template('index.html', zipped=zipped, length=length, login=login)
 
 
 @app.route('/price_tracking', methods=['GET', 'POST'])
@@ -108,6 +112,7 @@ def price_tracking():
     rows = show_price_tracking_list(login)
     length = len(rows)
     zipped = zip(rows, range(length))
+    make_not_changed(login)
 
     if request.method == 'POST':
         chosen = None
@@ -116,7 +121,7 @@ def price_tracking():
                 chosen = i
                 break
 
-        ad_id = get_ad_id(rows[chosen][0], rows[chosen][1])
+        ad_id = get_ad_id(rows[chosen][1], rows[chosen][2])
         delete_from_price_tracking(ad_id, login)
         rows.pop(chosen)
         length = len(rows)
@@ -158,6 +163,9 @@ def find_product(prod_name):
 
     login = session['user_name']
     rows = find_adverts_by_product(prod_name)
+    for i in range(len(rows)):
+        rows[i] = list(rows[i])
+        rows[i].pop(-1)
     length = len(rows)
     zipped = zip(rows, range(length))
 
@@ -171,7 +179,7 @@ def find_product(prod_name):
         if is_in_price_tracking_list(str(rows[chosen][0]), login) == 'false':
             add_to_price_tracking_list(str(rows[chosen][0]), login)
 
-    return render_template('find_product.html', zipped=zipped, rows=rows, name=prod_name)
+    return render_template('find_product.html', zipped=zipped, rows=rows, name=prod_name, login=login)
 
 
 @app.route('/search/vend=<string:vend_name>', methods=['GET', 'POST'])
@@ -181,6 +189,9 @@ def find_vendor(vend_name):
 
     login = session['user_name']
     rows = find_adverts_by_vendor(vend_name)
+    for i in range(len(rows)):
+        rows[i] = list(rows[i])
+        rows[i].pop(-1)
     length = len(rows)
     zipped = zip(rows, range(length))
 
@@ -194,7 +205,7 @@ def find_vendor(vend_name):
         if is_in_price_tracking_list(str(rows[chosen][0]), login) == 'false':
             add_to_price_tracking_list(str(rows[chosen][0]), login)
 
-    return render_template('find_vendor.html', zipped=zipped, rows=rows, name=vend_name)
+    return render_template('find_vendor.html', zipped=zipped, rows=rows, name=vend_name, login=login)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -205,7 +216,8 @@ def profile():
     form2 = DeleteUserBtn(request.form)
     form3 = EditProfileBtn(request.form)
     form4 = AddProductBtn(request.form)
-    form5 = EditAdvertisementBtn(request.form)
+    form5 = UpdateAdvertisementBtn(request.form)
+    form6 = EditAdvertisementBtn(request.form)
     login = session['user_name']
     row = user_profile(login)
 
@@ -218,15 +230,75 @@ def profile():
             return redirect(url_for('edit_profile'))
         elif 'submit_add' in request.form:
             return redirect(url_for('add_product'))
+        elif 'submit_update' in request.form:
+            return redirect(url_for('show_ads_for_update'))
         else:
             return redirect(url_for('delete_advert'))
 
     if login == 'admin_login':
         return render_template('profile.html', user_admin=True, row=row, form1=form1,
-                               form2=form2, form3=form3, form4=form4, form5=form5)
+                               form2=form2, form3=form3, form4=form4, form5=form5, form6=form6)
     else:
         return render_template('profile.html', user_admin=False, row=row, form1=form1,
-                               form2=form2, form3=form3, form4=form4, form5=form5)
+                               form2=form2, form3=form3, form4=form4, form5=form5, form6=form6)
+
+
+@app.route('/profile/update_ad', methods=['GET', 'POST'])
+def show_ads_for_update():
+    if 'user_name' not in session:
+        return redirect(url_for('login'))
+
+    login = session['user_name']
+    if login == 'admin_login':
+        rows = show_advertisements()
+        for i in range(len(rows)):
+            rows[i] = list(rows[i])
+            prod_desc = rows[i].pop(-1)
+    else:
+        rows = show_ads_by_login(login)
+        for i in range(len(rows)):
+            rows[i] = list(rows[i])
+            prod_desc = rows[i].pop(-1)
+
+    length = len(rows)
+    zipped = zip(rows, range(length))
+
+    if request.method == 'POST':
+        chosen = None
+        for i in range(length):
+            if str(i) in request.form:
+                chosen = i
+                break
+
+        return redirect('/profile/update_ad/id='+str(rows[chosen][0]))
+
+    return render_template('show_ads_for_update.html', length=length, zipped=zipped)
+
+
+@app.route('/profile/update_ad/id=<int:ad_id>', methods=['GET', 'POST'])
+def update_ad(ad_id):
+    if 'user_name' not in session:
+        return redirect(url_for('login'))
+
+    login = session['user_name']
+    row = find_ad_by_id(ad_id)
+    form = UpdateAdvertisement(request.form)
+
+    if request.method == 'POST':
+        if not form.validate():
+            flash(form.errors)
+        else:
+            name = request.form['name']
+            price = request.form['price']
+            quantity = request.form['quantity']
+            desc = request.form['description']
+            if is_ad_exists(login, name, ad_id) == 'false':
+                update_advertisement(name, price, quantity, desc, ad_id)
+                return redirect(url_for('show_ads_for_update'))
+            else:
+                flash({'failed': ['Such advertisement already exists']})
+
+    return render_template('update_ad.html', row=row, form=form, id=ad_id)
 
 
 @app.route('/profile/edit_profile', methods=['GET', 'POST'])
@@ -293,14 +365,14 @@ def delete_advert():
             ad_id = request.form['ad_id']
             if login == 'admin_login':
                 delete_advert_by_id(ad_id)
-                return render_template('delete_advert.html', form=form)
+                return redirect(url_for('profile'))
             else:
                 flag = get_advert_by_id(ad_id, login)
                 if flag == 'false':
                     flash({'not_found': ['You have not got such advertisement']})
                 else:
                     delete_advert_by_id(ad_id)
-                    return render_template('delete_advert.html', form=form)
+                    return redirect(url_for('profile'))
 
     return render_template('delete_advert.html', form=form)
 

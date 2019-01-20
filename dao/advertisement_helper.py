@@ -116,3 +116,49 @@ def delete_from_price_tracking(ad_id, login):
     cursor.callproc('DELETE_FROM_TABLES.delete_from_price_tracking', [ad_id, login])
     cursor.close()
     connection.close()
+
+
+def show_ads_by_login(login):
+    connection = cx_Oracle.connect(username, password, databaseName)
+    cursor = connection.cursor()
+    query = 'select * from table(SHOW.show_ads_by_login(\'{}\'))'.format(login)
+    cursor.execute(query)
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return result
+
+def find_ad_by_id(ad_id):
+    connection = cx_Oracle.connect(username, password, databaseName)
+    cursor = connection.cursor()
+    query = """select
+                    product_name,
+                    product_price,
+                    product_quantity,
+                    product_description
+               from
+                    Advertisement
+               where
+                    advertisement_id = \'{}\'""".format(ad_id)
+    cursor.execute(query)
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return result
+
+
+def is_ad_exists(login, name, ad_id):
+    connection = cx_Oracle.connect(username, password, databaseName)
+    cursor = connection.cursor()
+    res = cursor.callfunc('UPDATE_TABLES.is_ad_exists', cx_Oracle.STRING, [name, login, ad_id])
+    cursor.close()
+    connection.close()
+    return res
+
+
+def update_advertisement(name, price, quantity, desc, ad_id):
+    connection = cx_Oracle.connect(username, password, databaseName)
+    cursor = connection.cursor()
+    cursor.callproc('UPDATE_TABLES.update_advertisement', [name, price, quantity, desc, ad_id])
+    cursor.close()
+    connection.close()

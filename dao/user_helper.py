@@ -68,3 +68,14 @@ def show_all_users():
     connection.close()
 
     return result
+
+
+def make_not_changed(login):
+    connection = cx_Oracle.connect(username, password, databaseName)
+    cursor = connection.cursor()
+    query = 'update Price_tracking_list set status = \'not changed\' where user_login = \'{}\''.format(login)
+    cursor.execute(query)
+    query = 'commit'
+    cursor.execute(query)
+    cursor.close()
+    connection.close()

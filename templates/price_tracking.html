@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Main</title>
+        <title>Відслідковування ціни</title>
         <style type="text/css">
             .button {
                 border: 0;
@@ -39,6 +39,10 @@
             .btnSubmit:hover {
                 background-color: #00cc66;
             }
+
+            .set_font {
+                color: red;
+            }
         </style>
     </head>
     <body>
@@ -58,6 +62,7 @@
             <form method="POST" action="/price_tracking">
                 <table cellpadding="7" align="center" width="800px">
                     <tr>
+                        <th>Статус</th>
                         <th>Назва</th>
                         <th>Постачальник</th>
                         <th>Ціна (UAH)</th>
@@ -68,7 +73,11 @@
                     {%  for row, iter in zipped %}
                     <tr>
                         {% for col in row %}
-                            <td>{{ col }}</td>
+                            {% if col == 'changed' %}
+                                <td class="set_font">{{ col }}</td>
+                            {% else %}
+                                <td>{{ col }}</td>
+                            {% endif %}
                         {% endfor %}
                         <td align="center">
                             <input class="btnSubmit" type="submit" value="Delete" name="{{ iter }}">

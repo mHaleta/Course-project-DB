@@ -8,7 +8,10 @@ class AddProductBtn(FlaskForm):
     submit_add = SubmitField("Add Product")
 
 class EditAdvertisementBtn(FlaskForm):
-    submit_advert = SubmitField("Delete Advertisement")
+    submit_advert = SubmitField("Delete Ad")
+
+class UpdateAdvertisementBtn(FlaskForm):
+    submit_update = SubmitField("Update Ad")
 
 class DeleteUserBtn(FlaskForm):
     submit_del_user = SubmitField("Delete User")
@@ -35,6 +38,16 @@ class AddProduct(FlaskForm):
     description = TextAreaField("Product description", [validators.Length(max=2000, message="Too long description")])
 
     submit = SubmitField("Add Product")
+
+class UpdateAdvertisement(FlaskForm):
+    name = StringField("Product name",
+                       [validators.Length(min=1, max=199, message="Invalid input of product name")])
+    price = StringField("Product price",
+                        [validators.Regexp('^\d{1,10}$', message="Invalid input of price")])
+    quantity = StringField("Product quantity",
+                           [validators.Regexp('^\d{1,10}$', message="Invalid input of quantity")])
+
+    submit = SubmitField("Update Product")
 
 class DeleteAdvertisement(FlaskForm):
     ad_id = StringField("Advertisement id", [validators.Regexp('^\d{1,10}', message="Wrong id")])

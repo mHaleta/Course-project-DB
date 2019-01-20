@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Додавання продукту</title>
+        <title>Редагування реклами</title>
         <style type="text/css">
             .button {
                 border: 0;
@@ -19,6 +19,12 @@
 
             a {
                 text-decoration: none;
+            }
+
+            table {
+                border-width: 1px;
+                border-style: solid;
+                margin-top: 20px;
             }
 
             .btnSubmit {
@@ -46,35 +52,32 @@
             <a href="/profile"><button class="button", type="button">Профіль</button></a>
             <a href="/logout"><button class="button", type="button">Вихід</button></a>
         </div>
-        <div style="padding-top: 20px" align="center">
-            <form action="/profile/add_product", method="POST">
-                {{ form.hidden_tag() }}
-                <div style="padding-bottom: 10px">
-                        <p style="font-size: 20px; font-family: 'Segoe Print'" align="center">Add Product</p>
-                </div>
-                <div style="padding-bottom: 20px">
-                    {% for message in get_flashed_messages() %}
-                    {% for msg in message.values() %}
-                        <div class="flash">{{ msg[0] }}</div>
+        {% if length == 0 %}
+            <p style="font-size: 14pt" align="center">Немає товарів для редагування</p>
+        {% else %}
+            <form method="POST" action="/profile/update_ad">
+                <table cellpadding="7" align="center" width="800px">
+                    <tr>
+                        <th>ID</th>
+                        <th>Дата</th>
+                        <th>Постачальник</th>
+                        <th>Продукт</th>
+                        <th>Ціна (UAH)</th>
+                        <th>Кількість</th>
+                        <th>Редагувати</th>
+                    </tr>
+                    {%  for row, iter in zipped %}
+                    <tr>
+                        {% for col in row %}
+                            <td>{{ col }}</td>
+                        {% endfor %}
+                        <td align="center">
+                            <input class="btnSubmit" type="submit" value="Update" name="{{ iter }}">
+                        </td>
+                    </tr>
                     {% endfor %}
-                {% endfor %}
-                </div>
-                <div style="padding-bottom: 20px">
-                    {{ form.name(placeholder="Product name *") }}
-                </div>
-                <div style="padding-bottom: 20px">
-                    {{ form.price(placeholder="Product price *") }}
-                </div>
-                <div style="padding-bottom: 20px">
-                    {{ form.quantity(placeholder="Product quantity *") }}
-                </div>
-                <div style="padding-bottom: 20px">
-                    {{ form.description(placeholder="Description") }}
-                </div>
-                <div style="padding-bottom: 20px">
-                    {{ form.submit(class="btnSubmit") }}
-                </div>
+                </table>
             </form>
-        </div>
+        {% endif %}
     </body>
 </html>
