@@ -77,11 +77,53 @@ def registration():
 
 @app.route('/main', methods=['GET', 'POST'])
 def main():
-    if 'user_name' in session:
-        rows = show_advertisements()
-        return render_template('index.html', rows=rows)
-    else:
+    if 'user_name' not in session:
         return redirect(url_for('login'))
+
+    login = session['user_name']
+
+    rows = show_advertisements()
+    length = len(rows)
+    zipped = zip(rows, range(length))
+
+    if request.method == 'POST':
+        chosen = None
+        for i in range(length):
+            if str(i) in request.form:
+                chosen = i
+                break
+        if is_in_price_tracking_list(str(rows[chosen][0]), login) == 'false':
+            add_to_price_tracking_list(str(rows[chosen][0]), login)
+
+    return render_template('index.html', zipped=zipped, length=length)
+
+
+@app.route('/price_tracking', methods=['GET', 'POST'])
+def price_tracking():
+    if 'user_name' not in session:
+        return redirect(url_for('login'))
+
+    login = session['user_name']
+
+    rows = show_price_tracking_list(login)
+    length = len(rows)
+    zipped = zip(rows, range(length))
+
+    if request.method == 'POST':
+        chosen = None
+        for i in range(length):
+            if str(i) in request.form:
+                chosen = i
+                break
+
+        ad_id = get_ad_id(rows[chosen][0], rows[chosen][1])
+        delete_from_price_tracking(ad_id, login)
+        rows.pop(chosen)
+        length = len(rows)
+        zipped = zip(rows, range(length))
+        return render_template('price_tracking.html', zipped=zipped, length=length)
+
+    return render_template('price_tracking.html', zipped=zipped, length=length)
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -109,20 +151,50 @@ def search():
     return render_template('search.html', form_1=form_1, form_2=form_2)
 
 
-@app.route('/search/prod=<string:prod_name>')
+@app.route('/search/prod=<string:prod_name>', methods=['GET', 'POST'])
 def find_product(prod_name):
     if 'user_name' not in session:
         return redirect(url_for('login'))
+
+    login = session['user_name']
     rows = find_adverts_by_product(prod_name)
-    return render_template('find_product.html', rows=rows)
+    length = len(rows)
+    zipped = zip(rows, range(length))
+
+    if request.method == 'POST':
+        chosen = None
+        for i in range(length):
+            if str(i) in request.form:
+                chosen = i
+                break
+
+        if is_in_price_tracking_list(str(rows[chosen][0]), login) == 'false':
+            add_to_price_tracking_list(str(rows[chosen][0]), login)
+
+    return render_template('find_product.html', zipped=zipped, rows=rows, name=prod_name)
 
 
-@app.route('/search/vend=<string:vend_name>')
+@app.route('/search/vend=<string:vend_name>', methods=['GET', 'POST'])
 def find_vendor(vend_name):
     if 'user_name' not in session:
         return redirect(url_for('login'))
+
+    login = session['user_name']
     rows = find_adverts_by_vendor(vend_name)
-    return render_template('find_vendor.html', rows=rows)
+    length = len(rows)
+    zipped = zip(rows, range(length))
+
+    if request.method == 'POST':
+        chosen = None
+        for i in range(length):
+            if str(i) in request.form:
+                chosen = i
+                break
+
+        if is_in_price_tracking_list(str(rows[chosen][0]), login) == 'false':
+            add_to_price_tracking_list(str(rows[chosen][0]), login)
+
+    return render_template('find_vendor.html', zipped=zipped, rows=rows, name=vend_name)
 
 
 @app.route('/profile', methods=['GET', 'POST'])

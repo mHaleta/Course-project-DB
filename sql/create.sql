@@ -42,7 +42,17 @@ create table Advertisement
    product_price        INTEGER              not null,
    product_quantity     INTEGER              not null,
    product_description  VARCHAR(2000)                ,
-   constraint PK_ADVERTISEMENT primary key (advertisement_id, "date")
+   constraint PK_ADVERTISEMENT primary key (advertisement_id)
+);
+
+/*==============================================================*/
+/* Table: Price_tracking_list                                   */
+/*==============================================================*/
+create table Price_tracking_list
+(
+    advertisement_id        INTEGER             not null,
+    user_login              VARCHAR2(30)        not null,
+    constraint PK_PRICE_TRACKING_LIST primary key (advertisement_id, user_login)
 );
 
 alter table Advertisement
@@ -57,6 +67,15 @@ alter table Advertisement
 alter table "User"
    add constraint FK_USER_USER_HAS__USERROLE foreign key (role_definition)
       references UserRole (role_definition) on delete cascade;
+      
+      
+alter table Price_tracking_list
+    add constraint FK_USER_TRACKED_PRODUCT foreign key (user_login)
+        references "User" (user_login) on delete cascade;
+        
+alter table Price_tracking_list
+    add constraint FK_ADVERT_TRACKED_PRODUCT foreign key (advertisement_id)
+        references Advertisement (advertisement_id) on delete cascade;
       
 
 
@@ -131,3 +150,14 @@ alter table Advertisement
 alter table Advertisement
     add constraint product_description_check CHECK ( REGEXP_LIKE ( product_description,
     '^[^\c]{1,2000}|Null$' ) );
+    
+
+
+
+alter table Price_tracking_list
+    add constraint user_login_track_check check ( regexp_like ( user_login,
+    '^[A-Z0-9a-z_]{1,30}$' ) );
+    
+alter table Price_tracking_list
+    add constraint advertisement_track_id_check check ( regexp_like ( advertisement_id,
+    '^\d{1,10}$' ) );

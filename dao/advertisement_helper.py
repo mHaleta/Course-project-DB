@@ -44,6 +44,7 @@ def is_advert_exists(login, name):
     connection.close()
     return res
 
+
 def get_advert_by_id(ad_id, login):
     connection = cx_Oracle.connect(username, password, databaseName)
     cursor = connection.cursor()
@@ -64,10 +65,54 @@ def add_advertisement(login, name, price, quantity, description):
     cursor.close()
     connection.close()
 
+
 def delete_advert_by_id(ad_id):
     connection = cx_Oracle.connect(username, password, databaseName)
     cursor = connection.cursor()
-    res = cursor.callproc('DELETE_FROM_TABLES.delete_from_advertisement', [ad_id])
+    cursor.callproc('DELETE_FROM_TABLES.delete_from_advertisement', [ad_id])
+    cursor.close()
+    connection.close()
+
+
+def is_in_price_tracking_list(ad_id, login):
+    connection = cx_Oracle.connect(username, password, databaseName)
+    cursor = connection.cursor()
+    res = cursor.callfunc('INSERT_INTO_TABLES.is_in_price_tracking_list', cx_Oracle.STRING, [ad_id, login])
     cursor.close()
     connection.close()
     return res
+
+
+def add_to_price_tracking_list(ad_id, login):
+    connection = cx_Oracle.connect(username, password, databaseName)
+    cursor = connection.cursor()
+    cursor.callproc('INSERT_INTO_TABLES.add_to_price_tracking_list', [ad_id, login])
+    cursor.close()
+    connection.close()
+
+
+def show_price_tracking_list(login):
+    connection = cx_Oracle.connect(username, password, databaseName)
+    cursor = connection.cursor()
+    query = 'select * from table(SHOW.show_price_tracking_list(\'{}\'))'.format(login)
+    cursor.execute(query)
+    result = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return result
+
+
+def get_ad_id(name, login):
+    connection = cx_Oracle.connect(username, password, databaseName)
+    cursor = connection.cursor()
+    res = cursor.callfunc('DELETE_FROM_TABLES.get_ad_id', cx_Oracle.STRING, [name, login])
+    cursor.close()
+    connection.close()
+    return res
+
+def delete_from_price_tracking(ad_id, login):
+    connection = cx_Oracle.connect(username, password, databaseName)
+    cursor = connection.cursor()
+    cursor.callproc('DELETE_FROM_TABLES.delete_from_price_tracking', [ad_id, login])
+    cursor.close()
+    connection.close()

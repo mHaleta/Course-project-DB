@@ -149,3 +149,21 @@ values
     '1100',
     '25'
 );
+
+
+
+/*============================================*/
+/* PRICE_TRACKING_LIST population             */
+/*============================================*/
+
+insert into Price_tracking_list(advertisement_id, user_login)
+values('1000003', 'autofox');
+
+insert into Price_tracking_list(advertisement_id, user_login)
+values('1000002', 'autofox');
+
+insert into Price_tracking_list(advertisement_id, user_login)
+values('1000005', 'galeta_elena');
+
+insert into Price_tracking_list(advertisement_id, user_login)
+values('1000002', 'galeta_elena');

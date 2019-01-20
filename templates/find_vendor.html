@@ -26,6 +26,19 @@
                 border-style: solid;
                 margin-top: 20px;
             }
+
+            .btnSubmit {
+                background-color: #009933;
+                font-size: 16px;
+                font-family: "Segoe UI";
+                cursor: pointer;
+                text-align: center;
+                margin-right: 20px;
+            }
+
+            .btnSubmit:hover {
+                background-color: #00cc66;
+            }
         </style>
     </head>
     <body>
@@ -35,28 +48,35 @@
         <div style="padding-bottom: 15px" align="center">
             <a href="/main"><button class="button", type="button">Головна</button></a>
             <a href="/search"><button class="button", type="button">Пошук</button></a>
+            <a href="/price_tracking"><button class="button">Відслідковування ціни</button></a>
             <a href="/profile"><button class="button", type="button">Профіль</button></a>
             <a href="/logout"><button class="button", type="button">Вихід</button></a>
         </div>
         {% if not rows %}
             <p style="font-size: 14pt" align="center">Advertisements not found</p>
         {% else %}
-            <table cellpadding="7", align="center">
-                <tr>
-                    <th>ID</th>
-                    <th>Дата</th>
-                    <th>Постачальник</th>
-                    <th>Продукт</th>
-                    <th>Ціна (UAH)</th>
-                    <th>Кількість</th>
-                </tr>
-                {%  for row in rows %}
-                <tr>
-                    {% for col in row %}
-                    <td>{{ col }}</td>
+            <form method="POST" action="/search/vend={{ name }}">
+                <table cellpadding="7", align="center">
+                    <tr>
+                        <th>ID</th>
+                        <th>Дата</th>
+                        <th>Постачальник</th>
+                        <th>Продукт</th>
+                        <th>Ціна (UAH)</th>
+                        <th>Кількість</th>
+                    </tr>
+                    {%  for row, iter in zipped %}
+                        <tr>
+                        {% for col in row %}
+                            <td>{{ col }}</td>
+                        {% endfor %}
+                        <td align="center">
+                            <input class="btnSubmit" type="submit" value="Add" name="{{ iter }}">
+                        </td>
+                        </tr>
                     {% endfor %}
-                </tr>
-                {% endfor %}
-            </table>
+                </table>
+            </form>
         {% endif %}
     </body>
+</html>

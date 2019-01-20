@@ -12,6 +12,11 @@ create or replace package insert_into_tables is
         name_of_product     Advertisement.product_name % type
     ) return varchar2;
     
+    function is_in_price_tracking_list(
+        ad_id           Price_tracking_list.advertisement_id %type,
+        login           Price_tracking_list.user_login % type
+    ) return varchar2;
+    
     function get_max_advertisement_id return number;
 
     procedure add_user(
@@ -33,6 +38,11 @@ create or replace package insert_into_tables is
         advert_product_price        Advertisement.product_price % type,
         advert_product_quantity     Advertisement.product_quantity % type,
         advert_product_description  Advertisement.product_description % type
+    );
+    
+    procedure add_to_price_tracking_list(
+        ad_id               Price_tracking_list.advertisement_id % type,
+        login               Price_tracking_list.user_login % type
     );
 end insert_into_tables;
 
@@ -101,6 +111,28 @@ create or replace package body insert_into_tables is
             return 'false';
         end if;
     end is_advert_exists;
+    
+    function is_in_price_tracking_list(
+        ad_id               Price_tracking_list.advertisement_id % type,
+        login               Price_tracking_list.user_login % type
+    ) return varchar2 is
+        counter number;
+    begin
+        select
+            count(*)
+        into
+            counter
+        from
+            Price_tracking_list
+        where 
+            user_login = login and advertisement_id = ad_id;
+        
+        if(counter = 1) then
+            return 'true';
+        else
+            return 'false';
+        end if;
+    end is_in_price_tracking_list;
     
     function get_max_advertisement_id return number is
         max_id              number;
@@ -206,4 +238,17 @@ create or replace package body insert_into_tables is
             end if;
         end if;
     end add_advertisement;
+    
+    procedure add_to_price_tracking_list(
+        ad_id               Price_tracking_list.advertisement_id % type,
+        login               Price_tracking_list.user_login % type
+    ) is
+    begin
+        insert into Price_tracking_list(
+            advertisement_id,
+            user_login
+        )
+        values(ad_id, login);
+        commit;
+    end add_to_price_tracking_list;
 end insert_into_tables;
