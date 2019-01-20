@@ -70,7 +70,7 @@ create or replace package body update_tables is
         advert_id               Advertisement.advertisement_id % type
     ) is
     begin
-        if (p_desc = '') then
+        if (p_desc = 'None' or p_desc = '') then
             update Advertisement
             set
                 product_name = name_of_product,

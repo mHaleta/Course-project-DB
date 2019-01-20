@@ -24,6 +24,7 @@ create or replace package show is
     );
     
     type row_price_tracking_list is record(
+        status                  Price_tracking_list.status % type,
         name_of_product         Advertisement.product_name % type,
         vendor                  Advertisement.user_login % type,
         price                   Advertisement.product_price % type,
@@ -203,6 +204,7 @@ create or replace package body show is
     ) return tbl_price_tracking_list pipelined is
         cursor my_cursor is
             select
+                Price_tracking_list.status,
                 Advertisement.product_name,
                 Advertisement.user_login,
                 Advertisement.product_price,

@@ -246,9 +246,10 @@ create or replace package body insert_into_tables is
     begin
         insert into Price_tracking_list(
             advertisement_id,
-            user_login
+            user_login,
+            status
         )
-        values(ad_id, login);
+        values(ad_id, login, 'not changed');
         commit;
     end add_to_price_tracking_list;
 end insert_into_tables;
